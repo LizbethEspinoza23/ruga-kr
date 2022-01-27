@@ -1,26 +1,33 @@
-function [sol,v_real,e_a]=runge_kutta(f,fun,y0,a,b,h)
-format long;
-syms x y;
-n=(b-a)/h; %numero de segmentos en los que se evaluara la funcion
-Y(1)=y0;
-T=[a:h:b]; %valores que tomara la variable  x 
+function  [y1,y2,y3]= rungek2(f,x0,x1,y0,n)
+x0i=x0;
+y0i=y0;
+x0j=x0;
+y0j=y0;
 
-if a>b                            
-  msgID = 'RUNGE_KUTTA:condicion';
-  msg = 'Error';
-  error(msgID,msg)
-  
-else
-for i=1:n
-  % coeficientes del método de Runge-Kutta 
-  k1=subs(f,[x y],[T(i) Y(i)]); 
-  k2=subs(f,[x y],[T(i)+h/2,Y(i)+(h*k1/2)]); 
-  k3=subs(f,[x y],[T(i)+h,Y(i)-k1*h+2*k2*h]);
-  Y(i+1)=Y(i)+double(k1+4*k2+k3)*h/6;
-  v_real=double(subs(fun,x,T(i+1))); %valor real de la solucion de EE.DD
-  e_a=abs((v_real-Y(i+1))/v_real*100); %error absoluto
-end
-sol=double(Y(n+1)); % valor aproximado de la solucion de EE.DD
-
+syms x
+syms y
+h=(x1-x0)/n; %valor del salto de acuerdo al numero de pasos
+for i=0:n-1 %iteraciones de acuerdo al numero de pasos 
+    
+    %metodo de heun
+    k1=subs(f,{x,y},{x0,y0}); %aplicamos las formulas
+    k2=subs(f,{x,y},{x0+h,y0+k1*h});
+    y1=y0+(h/2)*(k1+k2);%se obtiene el valor aproximado de la eeedd
+    x0=x0+h; %asiganmos los nuevos valores
+    y0=y1;  
+    
+    %metodo de ralston
+    k1i=subs(f,{x,y},{x0i,y0i}); %aplicamos las formulas
+    k2i=subs(f,{x,y},{x0i+(3/4)*h,y0i+(3/4)*k1i*h});
+    y2=y0i+((1/3)*k1i+(2/3)*k2i)*h;%se obtiene el valor aproximado de la eeedd
+    x0i=x0i+h;%asiganmos los nuevos valores
+    y0i=y2;
+    
+    %metodo de punto medio
+    k1j=subs(f,{x,y},{x0j,y0j}); %aplicamos las formulas
+    k2j=subs(f,{x,y},{x0j+(1/2)*h,y0j+(1/2)*k1j*h});
+    y3=y0j+k2j*h;%se obtiene el valor aproximado de la eeedd
+    x0j=x0j+h;%asiganmos los nuevos valores
+    y0j=y3;
 end 
 end
